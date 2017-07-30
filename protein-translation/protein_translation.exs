@@ -25,6 +25,15 @@ defmodule ProteinTranslation do
   """
   @spec of_rna(String.t()) :: { atom,  list(String.t()) }
   def of_rna(rna) do
+    protein_list = rna
+    |> to_charlist
+    |> Enum.chunk(3)
+    |> Enum.map(&(to_string &1))
+    |> Enum.map(&(Map.get(@codon_map, &1)))
+    |> Enum.take_while(&(&1 != "STOP"))
+
+    if nil in protein_list, do: { :error, "invalid RNA" }, else: { :ok, protein_list }
+
   end
 
   @doc """
