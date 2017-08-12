@@ -6,14 +6,11 @@ defmodule StringSeries do
   """
   @spec slices(s :: String.t(), size :: integer) :: list(String.t())
   # def slices(_, size) when size <= 0, do: []
+  def slices(_, size) when 0 >= size, do: []
+  def slices(s, size) when byte_size(s) < size, do: []
   def slices(s, size) do
-    cond do
-      size <= 0 -> []
-      size > String.length(s) -> []
-      true ->
-        last = String.length(s) - size
-        for pos <- 0..last , do: String.slice(s, pos..(pos + size - 1))
-    end
+    last = String.length(s) - size
+    for pos <- 0..last , do: String.slice(s, pos..(pos + size - 1))
   end
 end
 
