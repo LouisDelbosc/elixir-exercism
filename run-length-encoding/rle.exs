@@ -7,17 +7,13 @@ defmodule RunLengthEncoder do
   "2A3B4C" => "AABBBCCCC"
   """
   def encode_letter([]), do: ""
-  def encode_letter([h|t]) do
-    case t do
-      [] -> [h]
-      _ -> "#{length(t)+1}#{[h]}"
-    end
-  end
+  def encode_letter([h]), do: h
+  def encode_letter([h|t]), do: "#{length(t)+1}#{h}"
 
   @spec encode(String.t) :: String.t
   def encode(string) do
     string
-    |> to_charlist
+    |> String.graphemes
     |> Enum.chunk_by(&(&1))
     |> Enum.map(&encode_letter/1)
     |> Enum.join
