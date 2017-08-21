@@ -10,19 +10,10 @@ defmodule BracketPush do
   end
 
   def push_bracket([], stack), do: stack === []
-  def push_bracket([ bracket | rest ], stack) when bracket in ["{", "[", "("] do
-    push_bracket(rest, [ bracket | stack ])
-  end
-
-  def push_bracket([ bracket | _ ], []) when bracket in ["}", "]", ")"], do: false
-  def push_bracket([ bracket | rest ], [h|t]) when bracket in ["}", "]", ")"] do
-    if closing_bracket?(h, bracket), do: push_bracket(rest, t), else: false
-  end
-
-  def push_bracket([ _ | rest ], stack), do: push_bracket(rest, stack)
-
-  def closing_bracket?("{", "}"), do: true
-  def closing_bracket?("[", "]"), do: true
-  def closing_bracket?("(", ")"), do: true
-  def closing_bracket?(_, _), do: false
+  def push_bracket(["(" | rest ], stack), do: push_bracket(rest, [")" | stack])
+  def push_bracket(["{" | rest ], stack), do: push_bracket(rest, ["}" | stack])
+  def push_bracket(["[" | rest ], stack), do: push_bracket(rest, ["]" | stack])
+  def push_bracket([closing | rest], [closing | tail]), do: push_bracket(rest, tail)
+  def push_bracket([first | _], _) when first in ~w(\} \] \)), do: false
+  def push_bracket([_ | rest], stack), do: push_bracket(rest, stack)
 end
