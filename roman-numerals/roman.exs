@@ -14,16 +14,15 @@ defmodule Roman do
   }
 
   def numerals(number) do
-    reverse_digits = number |> Integer.digits |> Enum.reverse
-    (for {digit, index} <- Enum.with_index(reverse_digits), do: mapping_digit(digit, index))
+    number
+    |> Integer.digits
+    |> Enum.reverse
+    |> Enum.with_index
+    |> Enum.map(fn({x, y}) -> mapping_digit(x, y) end)
     |> Enum.reverse
     |> Enum.join
   end
 
-  def mapping_digit(digit, index) when index >= 3 do
-    unit = trunc(:math.pow(10, index))
-    roman_digit(digit, @mapping[unit], "", "")
-  end
   def mapping_digit(digit, index) do
     unit = trunc(:math.pow(10, index))
     five = trunc(:math.pow(10, index) * 5)
