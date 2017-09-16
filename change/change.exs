@@ -16,24 +16,22 @@ defmodule Change do
   """
 
   @spec generate(list, integer) :: {:ok, list} | {:error, String.t}
+  def generate(_, 0), do: [] |> format_change
   def generate(coins, target) do
-    sorted_coins = Enum.sort(coins, &(&1 > &2))
-    case solution(sorted_coins, target, []) do
-      x when x !== nil -> {:ok, x}
-      _ -> {:error, "cannot change"}
-    end
+    1..target
+    |> Enum.reduce(%{0 => []}, fn val, acc -> solution(val, acc, coins) end)
+    |> get_in([target])
+    |> format_change
   end
 
-  def solution(_, 0, acc), do: acc
-  def solution([], target, _acc) when target != 0, do: nil
-  def solution([h|t], target, acc) when h > target, do: solution(t, target, acc)
-  def solution([h|t], target, acc) do
-    first = solution(t, target, acc)
-    second = solution([h|t], target - h, [h|acc])
-    case {first, second} do
-      {nil, _} -> second
-      {_, nil} -> first
-      _ -> if length(first) < length(second), do: first, else: second
-    end
+  def solution(target, solutions, coins) do
+    coins
+    |> Enum.filter(&(solutions[target - &1]))
+    |> Enum.map(fn coin -> [ coin | solutions[target - coin] ] end)
+    |> Enum.min_by(&length/1, fn -> nil end)
+    |> (&(Map.put(solutions, target, &1))).()
   end
+
+  def format_change(nil), do: {:error, "cannot change"}
+  def format_change(change), do: {:ok, change}
 end
