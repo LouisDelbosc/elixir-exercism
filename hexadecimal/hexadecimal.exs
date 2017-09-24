@@ -14,21 +14,24 @@ defmodule Hexadecimal do
       175
 
   """
-  @hexa %{
-    "0" => 0, "1" => 1, "2" => 2, "3" => 3,
-    "4" => 4, "5" => 5, "6" => 6, "7" => 7,
-    "8" => 8, "9" => 9, "a" => 10, "b" => 11,
-    "c" => 12, "d" => 13, "e" => 14, "f" => 15,
-  }
+  @hexa_letter %{"a" => 10, "b" => 11, "c" => 12, "d" => 13, "e" => 14, "f" => 15}
 
   @spec to_decimal(binary) :: integer
-  def to_decimal(hex), do: hex |> String.downcase |> to_decimal(0)
+  def to_decimal(hex) do
+    hex
+    |> String.downcase
+    |> String.graphemes
+    |> to_decimal(0)
+  end
 
-  for {hex_number, dec_value} <- @hexa do
-    def to_decimal(unquote(hex_number) <> rest, acc) do
-      to_decimal(rest, acc * 16 + unquote(dec_value))
+  def to_decimal([], acc), do: acc
+  def to_decimal([h|t], acc) do
+    case h do
+      h when h in ~w(1 2 3 4 5 6 7 8 9 0) ->
+        to_decimal(t, acc * 16 + String.to_integer(h))
+      h when h in ~w(a b c d e f) ->
+        to_decimal(t, acc * 16 + @hexa_letter[h])
+      _ -> 0
     end
   end
-  def to_decimal("", acc), do: acc
-  def to_decimal(_unknown, _useless), do: 0
 end
