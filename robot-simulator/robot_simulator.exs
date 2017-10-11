@@ -11,8 +11,7 @@ defmodule RobotSimulator do
   def create(direction, _) when direction not in @valid_direction do
     { :error, "invalid direction"}
   end
-  def create(direction, position = {x, y}) when i  @tag :pending
-s_integer(x) and is_integer(y) do
+  def create(direction, position = {x, y}) when is_integer(x) and is_integer(y) do
     %{direction: direction, position: position}
   end
   def create(direction, _invalid_position) do
