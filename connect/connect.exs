@@ -1,4 +1,5 @@
 defmodule Connect do
+  alias MapSet, as: MS
   @doc """
   Calculates the winner (if any) of a board
   using "O" as the white player
@@ -19,32 +20,27 @@ defmodule Connect do
   def win?(:white, board) do
     board
     |> Enum.at(0)
-    |> (fn line -> for {elem, i} <- Enum.with_index(line), elem == "O", do: {0, i} end).()
-    |> Enum.map(fn pos -> extracts_chains(pos, board, "O", MapSet.new([pos])) end)
-    |> Enum.any?(fn chain -> Enum.any?(chain, fn {x, _y} -> x == length(board) - 1 end) end)
+    |> (& for {elem, i} <- Enum.with_index(&1), elem == "O", do: {0, i}).()
+    |> Enum.map(fn pos -> extracts_chains(pos, board, "O", MS.new([pos])) end)
+    |> Enum.any?(& Enum.any?(&1, fn {x, _y} -> x == length(board) - 1 end))
   end
 
   def win?(:black, board) do
     board
     |> Enum.map(&hd/1)
-    |> (fn line -> for {elem, i} <- Enum.with_index(line), elem == "X", do: {i, 0} end).()
-    |> Enum.map(fn pos -> extracts_chains(pos, board, "X", MapSet.new([pos])) end)
-    |> Enum.any?(fn chain -> Enum.any?(chain, fn {_x, y} -> y == length(hd(board)) - 1 end)
-    end)
+    |> (& for {elem, i} <- Enum.with_index(&1), elem == "X", do: {i, 0}).()
+    |> Enum.map(fn pos -> extracts_chains(pos, board, "X", MS.new([pos])) end)
+    |> Enum.any?(& Enum.any?(&1, fn {_x, y} -> y == length(hd(board)) - 1 end))
   end
 
-  def get_cells({x, y}, board), do: board |> Enum.at(x) |> Enum.at(y)
-
   def extracts_chains([], _, _, acc), do: acc
-  def extracts_chains(position, index_board, color, acc) do
+  def extracts_chains(position, board, color, acc) do
     position
-    |> neighbours(index_board)
-    |> Enum.filter(fn {x, y} -> get_cells({x, y}, index_board) == color end)
-    |> Enum.filter(fn pos -> pos not in acc end)
-    |> (fn pos -> Enum.reduce(pos, MapSet.union(acc, MapSet.new(pos)),
-fn v, a -> MapSet.union(a, extracts_chains(v, index_board, color, a))
-end)
-    end).()
+    |> neighbours(board)
+    |> Enum.filter(fn {x, y} -> board |> Enum.at(x) |> Enum.at(y) == color end)
+    |> Enum.filter(& &1 not in acc)
+    |> (& Enum.reduce(&1, MS.union(acc, MS.new(&1)),
+          fn v, a -> MS.union(a, extracts_chains(v, board, color, a))end)).()
 
   end
 
